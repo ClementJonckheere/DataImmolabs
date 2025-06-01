@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Immobilier</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 2rem; background: #fafafa; }
+        .kpi-container { display: flex; gap: 1.5rem; margin-bottom: 3rem; }
+        .kpi-card {
+            flex: 1;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .kpi-card h3 { margin: 0; font-size: 1.2rem; color: #666; }
+        .kpi-card p { font-size: 2rem; margin: 0.5rem 0 0; font-weight: bold; color: #333; }
+        canvas { max-width: 100%; margin-top: 2rem; }
+    </style>
+</head>
+<body>
+<h1>📊 Dashboard Immobilier</h1>
+
+<div class="kpi-container" id="kpi"></div>
+
+<h2>🏙️ Top 5 villes par valeur foncière moyenne</h2>
+<canvas id="topVillesChart" width="600" height="300"></canvas>
+
+<h2>🏙️ Top 10 des villes avec la plus forte progression de population (2021 → 2022)</h2>
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+    <tr>
+        <th>Commune</th>
+        <th>INSEE</th>
+        <th>Population 2021</th>
+        <th>Population 2022</th>
+        <th>Évolution (%)</th>
+        <th>Évolution brute</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for ville in topProgressions %}
+        <tr>
+            <td>{{ ville.nom_commune }}</td>
+            <td>{{ ville.code_insee }}</td>
+            <td>{{ ville.pop_2021 }}</td>
+            <td>{{ ville.pop_2022 }}</td>
+            <td>{{ ville.variation_pct }}%</td>
+            <td>{{ ville.variation_brute }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+<script>
+    fetch('/api/dashboard')
+        .then(res => res.json())
+        .then(data => {
+            // === Affichage des KPI ===
+            const kpis = data.kpi;
+            const kpiContainer = document.getElementById("kpi");
+
+            const labels = {
+                total_transactions: "Total Transactions",
+                valeur_fonciere_moyenne: "Prix moyen (€)",
+                surface_moyenne: "Surface moyenne (m²)",
+                nb_villes: "Nombre de villes",
+                derniere_transaction: "Dernière transaction"
+            };
+
+            for (const [key, value] of Object.entries(kpis)) {
+                const card = document.createElement("div");
+                card.className = "kpi-card";
+                card.innerHTML = `<h3>${labels[key]}</h3><p>${value}</p>`;
+                kpiContainer.appendChild(card);
+            }
+
+            // === Graphique Chart.js ===
+            const ctx = document.getElementById('topVillesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.top_villes.map(v => v._id),
+                    datasets: [{
+                        label: 'Valeur foncière moyenne (€)',
+                        data: data.top_villes.map(v => v.valeur_fonciere_moyenne.toFixed(2)),
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        })
+        .catch(err => {
+            console.error("Erreur API :", err);
+            document.body.innerHTML += "<p>Erreur lors du chargement des données.</p>";
+        });
+</script>
+</body>
+</html>
