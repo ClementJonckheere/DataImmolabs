@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Documentation API{% endblock %}
+
+{% block body %}
+    <div style="max-width: 800px; margin: auto; padding: 2rem;">
+        <h1>Documentation des APIs disponibles</h1>
+
+        <ul style="line-height: 2;">
+            <li>
+                <strong><a href="/api/dashboard" target="_blank">/api/dashboard</a></strong> – Retourne les KPI principaux, la médiane, les top villes, les transactions, etc.
+            </li>
+            <li>
+                <strong><a href="/api/villes" target="_blank">/api/villes</a></strong> – Retourne la liste des villes présentes dans la base.
+            </li>
+            <li>
+                <strong><a href="/api/population/progression" target="_blank">/api/population/progression</a></strong> – Top 10 des villes avec la plus forte croissance de population entre 2021 et 2022.
+            </li>
+            <li>
+                <strong><a href="/api/population/baisses" target="_blank">/api/population/baisses</a></strong> – Top 10 des villes avec la plus forte baisse de population.
+            </li>
+            <li>
+                <strong><a href="/api/population" target="_blank">/api/population</a></strong> – Toutes les données de population par ville et par année.
+            </li>
+        </ul>
+
+        <div style="margin-top: 2rem;">
+            <a href="{{ path('dashboard') }}" class="btn btn-primary">Retour au Dashboard</a>
+        </div>
+    </div>
+{% endblock %}

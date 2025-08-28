@@ -1,0 +1,27 @@
+services:
+  mongodb:
+    image: mongo:6
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - dataimmolabs-net
+
+  symfony-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: symfony-app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+    networks:
+      - dataimmolabs-net
+    volumes:
+      - ./symfony:/var/www/html
+
+
+networks:
+  dataimmolabs-net:
+    external: true
